@@ -23,12 +23,12 @@ import type { Category } from '@/domain/entities/category.entity'
 const productSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres').max(200, 'Máximo 200 caracteres'),
   description: z.string().max(1000, 'Máximo 1000 caracteres').optional().or(z.literal('')),
-  price: z.coerce.number({ invalid_type_error: 'Ingresa un precio válido' }).positive('El precio debe ser mayor a 0'),
-  stock: z.coerce
-    .number({ invalid_type_error: 'Ingresa un stock válido' })
+  price: z.number({ error: 'Ingresa un precio válido' }).positive('El precio debe ser mayor a 0'),
+  stock: z
+    .number({ error: 'Ingresa un stock válido' })
     .int('El stock debe ser un número entero')
     .min(0, 'El stock no puede ser negativo'),
-  category_id: z.coerce.number({ invalid_type_error: 'Selecciona una categoría' }).positive('Selecciona una categoría'),
+  category_id: z.number({ error: 'Selecciona una categoría' }).positive('Selecciona una categoría'),
   is_active: z.boolean(),
 })
 
@@ -105,7 +105,7 @@ export function ProductForm({ defaultValues, onSubmit, isLoading = false, catego
             placeholder="0.00"
             disabled={isLoading}
             aria-invalid={!!errors.price}
-            {...register('price')}
+            {...register('price', { valueAsNumber: true })}
           />
           {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
         </div>
@@ -120,7 +120,7 @@ export function ProductForm({ defaultValues, onSubmit, isLoading = false, catego
             placeholder="0"
             disabled={isLoading}
             aria-invalid={!!errors.stock}
-            {...register('stock')}
+            {...register('stock', { valueAsNumber: true })}
           />
           {errors.stock && <p className="text-xs text-destructive">{errors.stock.message}</p>}
         </div>

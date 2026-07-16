@@ -21,8 +21,8 @@ import { ApiException } from '@/domain/exceptions/api.exception'
 import type { Product } from '@/domain/entities/product.entity'
 
 const restockSchema = z.object({
-  quantity: z.coerce
-    .number({ invalid_type_error: 'Ingresa una cantidad válida' })
+  quantity: z
+    .number({ error: 'Ingresa una cantidad válida' })
     .int('La cantidad debe ser un número entero')
     .positive('La cantidad debe ser mayor a 0'),
 })
@@ -101,7 +101,7 @@ export function RestockDialog({ open, onOpenChange, product }: RestockDialogProp
               placeholder="Ej. 50"
               disabled={isLoading}
               aria-invalid={!!errors.quantity}
-              {...register('quantity')}
+              {...register('quantity', { valueAsNumber: true })}
             />
             {errors.quantity && (
               <p className="text-xs text-destructive">{errors.quantity.message}</p>
