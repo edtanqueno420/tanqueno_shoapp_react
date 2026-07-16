@@ -22,35 +22,62 @@ jobs:
         run: |
           printf "%s" "${{ secrets.REACT_ENV }}" > .env.production
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build React
         run: npm run build
 
+      # Prueba SSH antes de copiar archivos
+      - name: Test SSH connection
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            whoami
+            hostname
+            echo "SSH OK"
+
+      # Subir archivos generados por Vite
       - name: Upload build to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
+          username: root
           key: ${{ secrets.VPS_KEY }}
           source: "dist/*"
           target: "/tmp/react_build"
+          overwrite: true
+          debug: true
 
+      # Activar nueva versión
       - name: Activate build on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
+          username: root
           key: ${{ secrets.VPS_KEY }}
           script: |
             set -e
 
+            echo "Preparando directorio web..."
+
             mkdir -p /var/www/react-movicore-app
+
             rm -rf /var/www/react-movicore-app/*
+
+            echo "Copiando archivos nuevos..."
+
             cp -r /tmp/react_build/dist/* /var/www/react-movicore-app/
 
             chown -R www-data:www-data /var/www/react-movicore-app
 
+            echo "Validando Nginx..."
+
             nginx -t
+
             systemctl reload nginx
+
+            echo "Deploy completado correctamente"
