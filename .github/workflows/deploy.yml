@@ -81,3 +81,10 @@ jobs:
             systemctl reload nginx
 
             echo "Deploy completado correctamente"
+
+
+
+
+
+
+            
