@@ -46,11 +46,11 @@ jobs:
           script: |
             set -e
 
-            mkdir -p /var/www/react-app
-            rm -rf /var/www/react-app/*
-            cp -r /tmp/react_build/dist/* /var/www/react-app/
+            mkdir -p /var/www/react-movicore-app
+            rm -rf /var/www/react-movicore-app/*
+            cp -r /tmp/react_build/dist/* /var/www/react-movicore-app/
 
-            chown -R www-data:www-data /var/www/react-app
+            chown -R www-data:www-data /var/www/react-movicore-app
 
             nginx -t
             systemctl reload nginx
